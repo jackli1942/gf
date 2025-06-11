@@ -1,0 +1,13 @@
+=== Searching for 'casbin.NewEnforcer' or 'casbin.NewSyncedEnforcer' ===
+\n=== Searching for common adapter patterns (NewAdapter, NewAdapterByDB, etc.) ===
+./modules/system/pkg/cache/adapter.go:20:func NewAdapter() gcache.Adapter {
+./modules/system/pkg/cache/cache.go:37:	cacheAdapter = NewAdapter()
+./modules/system/pkg/cache/cache.go:49:	return gcache.NewAdapterRedis(g.Redis(groupKey))
+./modules/system/pkg/redis/redis.go:19:	adapter := gcache.NewAdapterRedis(g.Redis(group))
+\n=== Searching for 'fileadapter.NewAdapter' (specific file adapter) ===
+\n=== Searching for 'AddPolicy' or 'AddGroupingPolicy' (programmatic policy management) ===
+\n=== Searching for 'policy.csv' or 'casbin_policy.csv' references in Go code ===
+\n=== Checking for Casbin rule table name 'casbin_rule' or 'casbin_rules' in Go code ===
+\n=== Checking for existence of policy.csv or casbin_policy.csv ===
+No policy.csv or casbin_policy.csv found in manifest/config.
+\n=== Searching for 'gfcasbinadapter' or 'gfadapter' ===

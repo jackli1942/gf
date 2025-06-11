@@ -1,0 +1,45 @@
+# GoFrame Configuration
+# Server Configuration
+server:
+  address: ":8070"
+  serverRoot: "resource/public"
+  dumpRouterMap: true
+  openapiPath: "/api.json"
+  swaggerPath: "/swagger"
+
+# Logger Configuration
+logger:
+  path: "logs"
+  level: "all"
+  stdout: true
+
+# Database Configuration (SQLite)
+database:
+  default:
+    link: "sqlite::@file(./gflite.db)" # SQLite database file in the project root
+    debug: true
+    driver: "sqlite"
+
+# Redis Configuration (Remains as placeholder, not used in this step)
+redis:
+  default:
+    address: "127.0.0.1:6379"
+    db: 0
+    pass: ""
+
+# JWT Configuration
+jwt:
+  realm: "gf_project"
+  key: "YourSecretKeyForJWT" # CHANGE THIS!
+  timeout: "24h"
+  maxRefresh: "72h"
+
+# Casbin Configuration
+casbin:
+  modelPath: "manifest/config/casbin_model.conf"
+
+# Queue Configuration
+queue:
+  redis:
+    default:
+      queue: "gf_project_queue"
