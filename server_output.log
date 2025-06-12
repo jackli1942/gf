@@ -1,0 +1,8 @@
+2025-06-12T03:37:06.920Z [INFO] {15003dc55b2e48187a14ac58acaa54c2} Initializing i18n with path: 'resource/i18n' and default language: 'en'
+2025-06-12T03:37:06.922Z [DEBU] SetServerRoot path: /app/resource/public
+2025-06-12T03:37:06.922Z [INFO] {15003dc55b2e48187a14ac58acaa54c2} Starting Yuncms server on :8081
+2025-06-12T03:37:06.929Z [FATA] net.Listen address ":8081" failed: listen tcp :8081: bind: address already in use
+1. net.Listen address ":8081" failed
+2. listen tcp :8081: bind: address already in use
+
+exit status 1

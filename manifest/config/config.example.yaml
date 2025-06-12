@@ -1,0 +1,62 @@
+# GoFrame Configuration Example for Yuncms
+
+# Server Configuration
+server:
+  address: ":8081" # Default port changed from 8000 to 8081 based on prior success
+  serverRoot: "resource/public" # Original static root, may not be used if frontend serves all UI
+  openapiPath: "/api.json"
+  swaggerPath: "/swagger"
+  dumpRouterMap: true
+  # Frontend specific paths:
+  adminRoutePrefix: "/admin" # URL prefix for the admin frontend
+  frontendStaticPath: "web/admin/dist" # Filesystem path to the built frontend static assets
+
+# Logger Configuration
+logger:
+  path: "storage/logs"
+  level: "all"
+  stdout: true
+
+# Database Configuration (MySQL example)
+database:
+  default:
+    link: "mysql:root:@tcp(127.0.0.1:3306)/yuncms_dev?charset=utf8mb4&parseTime=true&loc=Local"
+    debug: true # Set to false in production
+    maxIdle: 10 # From original config
+    maxOpen: 100 # From original config
+    maxLifetime: "30m" # From original config
+
+# Redis Configuration
+redis:
+  default:
+    address: "127.0.0.1:6379"
+    db: 0
+    # pass: "" # From original config
+
+# JWT Configuration
+jwt:
+  realm: "yuncms"
+  key: "DefaultSecretKeyForYuncmsJWTDevelopment" # CHANGE THIS IN PRODUCTION!
+  timeout: "12h"
+  maxRefresh: "3h"
+
+# Application specific settings
+application:
+  name: "Yuncms"
+  version: "0.1.0"
+  defaultLanguage: "zh" # Default is Chinese
+  i18nPath: "resource/i18n"
+
+# Queue (Asynq) Configuration
+queue:
+  redisAddr: "127.0.0.1:6379"
+  redisPassword: ""
+  redisDB: 1 # Use a different DB for queue if possible
+  # concurrency: 10 # From original config
+EOF
+
+# Casbin Configuration
+casbin:
+  model: "manifest/config/casbin_model.conf"
+  table: "casbin_rules"
+  # adapter: "go-sql-adapter"

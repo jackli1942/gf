@@ -1,0 +1,28 @@
+2025-06-12T03:45:13.929Z [INFO] pid[27535]: http server started listening on [127.0.0.1:34019]
+2025-06-12T03:45:13.929Z [INFO] swagger ui is serving at address: http://127.0.0.1:34019/swagger/
+2025-06-12T03:45:13.929Z [INFO] openapi specification is serving at address: http://127.0.0.1:34019/api.json
+2025-06-12T03:45:14.016Z [INFO] MinimalServer: Test GET http://127.0.0.1:34019/minimalhealth
+2025-06-12T03:45:14.018Z [INFO] {b7eb942ecd2e481863ca5d503a254dca} Minimal health handler reached in TestMinimalServerHealth!
+2025-06-12T03:45:14.018Z [INFO] MinimalServer: Response Body: {"ping":"pong"}
+2025-06-12T03:45:14.018Z [INFO] pid[27535]: all servers shutdown
+2025-06-12T03:49:24.726Z [INFO] swagger ui is serving at address: http://127.0.0.1:35703/swagger/
+2025-06-12T03:49:24.726Z [INFO] openapi specification is serving at address: http://127.0.0.1:35703/api.json
+2025-06-12T03:49:24.726Z [INFO] pid[29983]: http server started listening on [127.0.0.1:35703]
+2025-06-12T03:49:24.817Z [INFO] MinimalServer: Test GET http://127.0.0.1:35703/minimalhealth
+2025-06-12T03:49:24.818Z [INFO] {e6f77393072f481854597d7901d4b550} Minimal health handler reached in TestMinimalServerHealth!
+2025-06-12T03:49:24.818Z [INFO] MinimalServer: Response Body: {"ping":"pong"}
+2025-06-12T03:49:24.819Z [INFO] pid[29983]: all servers shutdown
+2025-06-12T03:59:53.529Z [INFO] pid[33207]: http server started listening on [127.0.0.1:36045]
+2025-06-12T03:59:53.530Z [INFO] swagger ui is serving at address: http://127.0.0.1:36045/swagger/
+2025-06-12T03:59:53.530Z [INFO] openapi specification is serving at address: http://127.0.0.1:36045/api.json
+2025-06-12T03:59:53.622Z [INFO] MinimalServer: Test GET http://127.0.0.1:36045/minimalhealth
+2025-06-12T03:59:53.623Z [INFO] {93d628fb992f48189cc0fe44e1af5ca4} Minimal health handler reached in TestMinimalServerHealth!
+2025-06-12T03:59:53.624Z [INFO] MinimalServer: Response Body: {"ping":"pong"}
+2025-06-12T03:59:53.624Z [INFO] pid[33207]: all servers shutdown
+2025-06-12T04:00:50.034Z [INFO] pid[33707]: http server started listening on [127.0.0.1:46515]
+2025-06-12T04:00:50.034Z [INFO] swagger ui is serving at address: http://127.0.0.1:46515/swagger/
+2025-06-12T04:00:50.034Z [INFO] openapi specification is serving at address: http://127.0.0.1:46515/api.json
+2025-06-12T04:00:50.115Z [INFO] MinimalServer: Test GET http://127.0.0.1:46515/minimalhealth
+2025-06-12T04:00:50.117Z [INFO] {e4a56f22a72f481843f4e141a20b5cb8} Minimal health handler reached in TestMinimalServerHealth!
+2025-06-12T04:00:50.117Z [INFO] MinimalServer: Response Body: {"ping":"pong"}
+2025-06-12T04:00:50.117Z [INFO] pid[33707]: all servers shutdown
