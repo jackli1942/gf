@@ -2,45 +2,22 @@ package service
 
 import (
 	"sync"
-	// "fmt"
+	"time"
 
-	"github.com/casbin/casbin/v2"
-	// Use the root package of dobyte/gf-casbin and alias it if needed, or use its methods directly.
-	// Assuming NewAdapter is in the root of the dobyte/gf-casbin module.
-	// If the constructor is `adapter.NewAdapter`, then the package name is `adapter`.
-	// Based on the error, the package is NOT at "github.com/dobyte/gf-casbin/adapter".
-	// Let's assume the package name provided by "github.com/dobyte/gf-casbin" is "gfcasbin" or similar,
-	// or that NewAdapter is a top-level function in that module.
-	// A common pattern is: import casbinAdapter "github.com/dobyte/gf-casbin"
-	// and then casbinAdapter.NewAdapter(...)
-	// The prompt's code uses `adapter.NewAdapter`, implying the package name is `adapter`.
-	// Let's try importing "github.com/dobyte/gf-casbin" and see if `NewAdapter` is directly available
-	// or if it's under a package name like `gfcasbin.NewAdapter`.
-	// The previous subtask used `adapter "github.com/dobyte/gf-casbin/adapter"`.
-	// The fix is to change the import path and potentially the qualifier for NewAdapter.
-	// If the module is `github.com/dobyte/gf-casbin` and it provides `NewAdapter`,
-	// the import would be `import "github.com/dobyte/gf-casbin"` and call `gfcasbin.NewAdapter`
-	// or if package name is `adapter` within that module, then `adapter.NewAdapter` is fine.
-	// The error says "does not contain package github.com/dobyte/gf-casbin/adapter".
-	// This means the import path itself is wrong. The package is likely at the root.
-	// So, import "github.com/dobyte/gf-casbin" and then the functions are directly available from that package.
-	// Let's check dobyte/gf-casbin docs. It seems the package itself is `adapter`.
-	// So, `import adapter "github.com/dobyte/gf-casbin"` is the way.
-	adapter "github.com/dobyte/gf-casbin"
-
+	"github.com/casbin/casbin/v2" // Core Casbin types are used via dobytecasbin.Enforcer alias
+	dobytecasbin "github.com/dobyte/gf-casbin"
 	"github.com/gogf/gf/v2/frame/g"
 	"github.com/gogf/gf/v2/os/gctx"
 	"github.com/gogf/gf/v2/os/gfile"
-	"strings"
 )
 
 var (
-	enforcer *casbin.SyncedEnforcer
-	once     sync.Once
+	globalEnforcer *dobytecasbin.Enforcer // Alias for *casbin.Enforcer
+	onceEnforcer   sync.Once
 )
 
-func Casbin() *casbin.SyncedEnforcer {
-	once.Do(func() {
+func Casbin() *dobytecasbin.Enforcer {
+	onceEnforcer.Do(func() {
 		ctx := gctx.New()
 
 		modelPath := g.Cfg().MustGet(ctx, "casbin.model", "manifest/config/casbin_model.conf").String()
@@ -49,48 +26,78 @@ func Casbin() *casbin.SyncedEnforcer {
 			return
 		}
 
-		db := g.DB()
-		if db == nil {
-			g.Log().Fatal(ctx, "Casbin Service: Default database not configured.")
+		casbinTable := g.Cfg().MustGet(ctx, "casbin.table", "casbin_rules").String()
+		dbLink := g.Cfg().MustGet(ctx, "database.default.link").String()
+		if dbLink == "" {
+			g.Log().Fatal(ctx, "Casbin Service: 'database.default.link' not found or is empty in configuration.")
 			return
 		}
 
-		casbinTableName := g.Cfg().MustGet(ctx, "casbin.table", "casbin_rules").String()
-
-		// The import is now `adapter "github.com/dobyte/gf-casbin"`
-		// So the call `adapter.NewAdapter(db, casbinTableName)` should be correct.
-		a, errAdapter := adapter.NewAdapter(db, casbinTableName)
-		if errAdapter != nil {
-			g.Log().Fatalf(ctx, "Casbin Service: Failed to initialize dobyte/gf-casbin adapter: %v", errAdapter)
-			return
+		options := &dobytecasbin.Options{
+			Model:    modelPath,
+			Table:    casbinTable,
+			Link:     dbLink,
+			Enable:   true,
+			AutoLoad: true,
+			Duration: 5 * time.Second,
+			Debug:    g.Cfg().MustGet(ctx, "database.default.debug", false).Bool(),
 		}
 
 		var errEnforcer error
-		enforcer, errEnforcer = casbin.NewSyncedEnforcer(modelPath, a)
+		globalEnforcer, errEnforcer = dobytecasbin.NewEnforcer(options)
+
 		if errEnforcer != nil {
-			g.Log().Fatalf(ctx, "Casbin Service: Failed to create Casbin enforcer: %v", errEnforcer)
+			g.Log().Fatalf(ctx, "Casbin Service: Failed to create Casbin enforcer with dobyte/gf-casbin: %v", errEnforcer)
 			return
 		}
 
-		if err := enforcer.LoadPolicy(); err != nil {
-			g.Log().Warningf(ctx, "Casbin Service: Failed to load policy from database: %v. This might be normal if the table ('%s') is new.", err, casbinTableName)
+		if err := globalEnforcer.LoadPolicy(); err != nil {
+			g.Log().Warningf(ctx, "Casbin Service: Error loading policy from database: %v. (Table: %s). This might be okay if table is new.", err, casbinTable)
+		} else {
+			g.Log().Info(ctx, "Casbin Service: Policies loaded successfully from database.")
 		}
 
-		g.Log().Info(ctx, "Casbin Service: SyncedEnforcer initialized successfully with dobyte/gf-casbin adapter.")
-		g.Log().Infof(ctx, "Casbin Service: Model: %s, Table: %s", modelPath, casbinTableName)
+		g.Log().Info(ctx, "Casbin Service: Enforcer initialized successfully using dobyte/gf-casbin.")
+		g.Log().Infof(ctx, "Casbin Service: Model: %s, Table: %s", modelPath, casbinTable)
+
+		if len(globalEnforcer.GetPolicy()) == 0 && len(globalEnforcer.GetGroupingPolicy()) == 0 {
+			g.Log().Info(ctx, "Casbin Service: No policies found. Adding default admin role and permissions...")
+
+			added, err := globalEnforcer.AddPolicy("admin_role", "/*", "*")
+			if err != nil {
+				g.Log().Errorf(ctx, "Casbin Service: Failed to add default admin policy (admin_role, /*, *): %v", err)
+			} else if !added {
+				g.Log().Warningf(ctx, "Casbin Service: Default admin policy (admin_role, /*, *) already exists or was not added.")
+			} else {
+				g.Log().Info(ctx, "Casbin Service: Default admin policy (admin_role, /*, *) added successfully.")
+			}
+
+			if errSave := globalEnforcer.SavePolicy(); errSave != nil {
+			    g.Log().Errorf(ctx, "Casbin Service: Failed to save default policies to database: %v", errSave)
+			} else {
+			    g.Log().Info(ctx, "Casbin Service: Default policies attempt and SavePolicy() executed.")
+			}
+		} else {
+			g.Log().Infof(ctx, "Casbin Service: Existing policies found (Policy rules: %d, Grouping rules: %d). Default policies not added.", len(globalEnforcer.GetPolicy()), len(globalEnforcer.GetGroupingPolicy()))
+		}
 	})
-	if enforcer == nil {
-	    panic("Casbin enforcer failed to initialize after once.Do. Check logs.")
+	if globalEnforcer == nil { // Should be caught by Fatalf, but defensive
+	    panic("Casbin globalEnforcer is nil after initialization attempt. Check logs.")
 	}
-	return enforcer
+	return globalEnforcer
 }
 
 func InitCasbin() {
-	Casbin()
+	if Casbin() == nil {
+		g.Log().Error(gctx.New(), "Casbin enforcer failed to initialize and is nil (InitCasbin).")
+	}
 }
+
+// --- Casbin Operation Helper Functions ---
 
 func CheckPermission(sub string, obj string, act string) (bool, error) {
 	e := Casbin()
+	// e.Enforce returns (bool, error) where error is for issues during enforcement, not for "access denied"
 	return e.Enforce(sub, obj, act)
 }
 
@@ -99,7 +106,84 @@ func AddPolicy(sub string, obj string, act string) (bool, error) {
 	return e.AddPolicy(sub, obj, act)
 }
 
-func AddRoleForUser(user string, role string) (bool, error) {
+func RemovePolicy(sub string, obj string, act string) (bool, error) {
 	e := Casbin()
+	return e.RemovePolicy(sub, obj, act)
+}
+
+func RemoveFilteredPolicy(fieldIndex int, fieldValues ...string) (bool, error) {
+    e := Casbin()
+    return e.RemoveFilteredPolicy(fieldIndex, fieldValues...)
+}
+
+func AddRoleForUser(user string, role string, domain ...string) (bool, error) {
+	e := Casbin()
+	if len(domain) > 0 {
+		return e.AddRoleForUserInDomain(user, role, domain[0])
+	}
 	return e.AddGroupingPolicy(user, role)
+}
+
+func RemoveRoleForUser(user string, role string, domain ...string) (bool, error) {
+	e := Casbin()
+	if len(domain) > 0 {
+		return e.RemoveRoleForUserInDomain(user, role, domain[0])
+	}
+	return e.RemoveGroupingPolicy(user, role)
+}
+
+func GetRolesForUser(user string, domain ...string) ([]string, error) {
+	e := Casbin()
+	if len(domain) > 0 {
+		return e.GetRolesForUserInDomain(user, domain[0])
+	}
+	return e.GetRolesForUser(user)
+}
+
+func GetUsersForRole(role string, domain ...string) ([]string, error) {
+	e := Casbin()
+	if len(domain) > 0 {
+		return e.GetUsersForRoleInDomain(role, domain[0])
+	}
+	return e.GetUsersForRole(role)
+}
+
+func DeleteRole(role string) (bool, error) {
+	e := Casbin()
+	// This deletes policy rules (p, role, *, *) and grouping rules (g, *, role)
+	// It does not delete g rules like (g, user, role) which assign users to this role.
+	// For a full role cleanup, one might need to remove user assignments first.
+	// e.RemoveFilteredGroupingPolicy(1, role) // Removes g, *, role_to_delete
+	return e.DeleteRole(role)
+}
+
+func DeleteUser(user string) (bool, error) {
+	e := Casbin()
+	// This removes p rules (p, user, *, *) and g rules (g, user, *)
+	return e.DeleteUser(user)
+}
+
+func GetAllSubjects() ([]string, error) {
+	e := Casbin()
+	return e.GetAllSubjects(), nil
+}
+
+func GetAllNamedSubjects(ptype string) ([]string, error) {
+	e := Casbin()
+	return e.GetAllNamedSubjects(ptype), nil
+}
+
+func GetAllRoles() ([]string, error) {
+	e := Casbin()
+	return e.GetAllRoles(), nil
+}
+
+func GetAllObjects() ([]string, error) {
+	e := Casbin()
+	return e.GetAllObjects(), nil
+}
+
+func GetAllActions() ([]string, error) {
+	e := Casbin()
+	return e.GetAllActions(), nil
 }

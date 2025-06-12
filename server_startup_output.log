@@ -1,0 +1,23 @@
+2025-06-12T06:19:16.481Z [INFO] {f4b13a1c35374818ed23f4594ca0245c} Initializing i18n with path: 'resource/i18n' and default language: 'zh'
+2025-06-12T06:19:16.482Z [INFO] {f4b13a1c35374818ed23f4594ca0245c} Initializing Casbin service via service.InitCasbin()...
+2025-06-12T06:19:16.498Z [INFO] {7658601c35374818ee23f459233b3565} Casbin Service: Enforcer initialized successfully using dobyte/gf-casbin.
+2025-06-12T06:19:16.498Z [INFO] {7658601c35374818ee23f459233b3565} Casbin Service: Model: manifest/config/casbin_model.conf, Table: casbin_rules
+2025-06-12T06:19:16.498Z [INFO] {f4b13a1c35374818ed23f4594ca0245c} Casbin service initialization via service.InitCasbin() attempted.
+2025-06-12T06:19:16.499Z [DEBU] SetServerRoot path: /app/resource/public
+2025-06-12T06:19:16.499Z [WARN] {f4b13a1c35374818ed23f4594ca0245c} Frontend static path 'web/admin/dist' not found. Frontend will not be served. This is normal if frontend has not been built yet.
+2025-06-12T06:19:16.499Z [INFO] {f4b13a1c35374818ed23f4594ca0245c} Starting Yuncms server on :8082
+2025-06-12T06:19:16.510Z [INFO] pid[39689]: http server started listening on [:8082]
+2025-06-12T06:19:16.510Z [INFO] swagger ui is serving at address: http://127.0.0.1:8082/swagger/
+2025-06-12T06:19:16.510Z [INFO] openapi specification is serving at address: http://127.0.0.1:8082/api.json
+
+  ADDRESS | METHOD |   ROUTE    |                        HANDLER                        |    MIDDLEWARE
+----------|--------|------------|-------------------------------------------------------|--------------------
+  :8082   | ALL    | /api.json  | github.com/gogf/gf/v2/net/ghttp.(*Server).openapiSpec |
+----------|--------|------------|-------------------------------------------------------|--------------------
+  :8082   | ALL    | /health    | yuncms/internal/controller/health.(*CHealth).Health   |
+----------|--------|------------|-------------------------------------------------------|--------------------
+  :8082   | ALL    | /swagger/* | github.com/gogf/gf/v2/net/ghttp.(*Server).swaggerUI   | HOOK_BEFORE_SERVE
+----------|--------|------------|-------------------------------------------------------|--------------------
+
+2025-06-12T06:19:30.317Z 39689: server gracefully shutting down by signal: terminated
+2025-06-12T06:19:30.317Z [INFO] pid[39689]: all servers shutdown

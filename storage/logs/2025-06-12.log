@@ -9,3 +9,58 @@
 2025-06-12T03:35:12.799Z [INFO] {fe4e0733412e48186e68ab16ea283163} Starting Yuncms server on :8081
 2025-06-12T03:37:06.920Z [INFO] {15003dc55b2e48187a14ac58acaa54c2} Initializing i18n with path: 'resource/i18n' and default language: 'en'
 2025-06-12T03:37:06.922Z [INFO] {15003dc55b2e48187a14ac58acaa54c2} Starting Yuncms server on :8081
+2025-06-12T06:05:12.424Z [INFO] {1e29819670364818efc37509b9c35f94} Initializing i18n with path: 'resource/i18n' and default language: 'zh'
+2025-06-12T06:05:12.426Z [INFO] {1e29819670364818efc37509b9c35f94} Initializing Casbin service...
+2025-06-12T06:05:12.454Z [FATA] {1e11b59670364818f0c37509112440d8} Casbin Service: Failed to create Casbin enforcer with dobyte/gf-casbin:
+CREATE TABLE IF NOT EXISTS casbin_rules (
+	ptype VARCHAR(10) NOT NULL DEFAULT '',
+	v0 VARCHAR(256) NOT NULL DEFAULT '',
+	v1 VARCHAR(256) NOT NULL DEFAULT '',
+	v2 VARCHAR(256) NOT NULL DEFAULT '',
+	v3 VARCHAR(256) NOT NULL DEFAULT '',
+	v4 VARCHAR(256) NOT NULL DEFAULT '',
+	v5 VARCHAR(256) NOT NULL DEFAULT ''
+) COMMENT = 'policy table';
+: Error 1698 (28000): Access denied for user 'root'@'localhost'
+Stack:
+1.  yuncms/internal/service.Casbin.func1
+    /app/internal/service/casbin_service.go:51
+2.  yuncms/internal/service.Casbin
+    /app/internal/service/casbin_service.go:21
+3.  yuncms/internal/service.InitCasbin
+    /app/internal/service/casbin_service.go:65
+4.  yuncms/internal/cmd.init.func1
+    /app/internal/cmd/cmd.go:54
+5.  main.main
+    /app/main.go:20
+
+2025-06-12T06:14:15.421Z [INFO] {c195a803ef3648184212bb12e0158353} Initializing i18n with path: 'resource/i18n' and default language: 'zh'
+2025-06-12T06:14:15.423Z [INFO] {c195a803ef3648184212bb12e0158353} Initializing Casbin service...
+2025-06-12T06:14:15.612Z [INFO] {2041e103ef3648184312bb123258465a} Casbin Service: Enforcer initialized successfully using dobyte/gf-casbin.
+2025-06-12T06:14:15.612Z [INFO] {2041e103ef3648184312bb123258465a} Casbin Service: Model: manifest/config/casbin_model.conf, Table: casbin_rules
+2025-06-12T06:14:15.612Z [INFO] {c195a803ef3648184212bb12e0158353} Casbin service initialization attempted.
+2025-06-12T06:17:42.047Z [INFO] {6a3c921f1f374818d307b03ef51bd47f} Initializing i18n with path: 'resource/i18n' and default language: 'zh'
+2025-06-12T06:17:42.049Z [INFO] {6a3c921f1f374818d307b03ef51bd47f} Initializing Casbin service via service.InitCasbin()...
+2025-06-12T06:17:42.070Z [INFO] {3480bd1f1f374818d407b03ec0e821df} Casbin Service: Enforcer initialized successfully using dobyte/gf-casbin.
+2025-06-12T06:17:42.070Z [INFO] {3480bd1f1f374818d407b03ec0e821df} Casbin Service: Model: manifest/config/casbin_model.conf, Table: casbin_rules
+2025-06-12T06:17:42.070Z [INFO] {6a3c921f1f374818d307b03ef51bd47f} Casbin service initialization via service.InitCasbin() attempted.
+2025-06-12T06:17:42.074Z [WARN] {6a3c921f1f374818d307b03ef51bd47f} Frontend static path 'web/admin/dist' not found. Frontend will not be served. This is normal if frontend has not been built yet.
+2025-06-12T06:17:42.074Z [INFO] {6a3c921f1f374818d307b03ef51bd47f} Starting Yuncms server on :8081
+2025-06-12T06:19:16.481Z [INFO] {f4b13a1c35374818ed23f4594ca0245c} Initializing i18n with path: 'resource/i18n' and default language: 'zh'
+2025-06-12T06:19:16.482Z [INFO] {f4b13a1c35374818ed23f4594ca0245c} Initializing Casbin service via service.InitCasbin()...
+2025-06-12T06:19:16.498Z [INFO] {7658601c35374818ee23f459233b3565} Casbin Service: Enforcer initialized successfully using dobyte/gf-casbin.
+2025-06-12T06:19:16.498Z [INFO] {7658601c35374818ee23f459233b3565} Casbin Service: Model: manifest/config/casbin_model.conf, Table: casbin_rules
+2025-06-12T06:19:16.498Z [INFO] {f4b13a1c35374818ed23f4594ca0245c} Casbin service initialization via service.InitCasbin() attempted.
+2025-06-12T06:19:16.499Z [WARN] {f4b13a1c35374818ed23f4594ca0245c} Frontend static path 'web/admin/dist' not found. Frontend will not be served. This is normal if frontend has not been built yet.
+2025-06-12T06:19:16.499Z [INFO] {f4b13a1c35374818ed23f4594ca0245c} Starting Yuncms server on :8082
+2025-06-12T06:21:29.148Z [INFO] {7772caff53374818f06dc059f5a0f6af} Initializing i18n with path: 'resource/i18n' and default language: 'zh'
+2025-06-12T06:21:29.152Z [INFO] {7772caff53374818f06dc059f5a0f6af} Initializing Casbin service via service.InitCasbin()...
+2025-06-12T06:21:29.242Z [INFO] {6d1a2a0054374818f16dc059bf7ece51} Casbin Service: Policies loaded successfully from database.
+2025-06-12T06:21:29.242Z [INFO] {6d1a2a0054374818f16dc059bf7ece51} Casbin Service: Enforcer initialized successfully using dobyte/gf-casbin.
+2025-06-12T06:21:29.242Z [INFO] {6d1a2a0054374818f16dc059bf7ece51} Casbin Service: Model: manifest/config/casbin_model.conf, Table: casbin_rules
+2025-06-12T06:21:29.242Z [INFO] {6d1a2a0054374818f16dc059bf7ece51} Casbin Service: No policies found. Adding default admin role and permissions...
+2025-06-12T06:21:29.278Z [INFO] {6d1a2a0054374818f16dc059bf7ece51} Casbin Service: Default admin policy (admin_role, /*, *) added.
+2025-06-12T06:21:29.461Z [INFO] {6d1a2a0054374818f16dc059bf7ece51} Casbin Service: Default policies added and SavePolicy() executed.
+2025-06-12T06:21:29.462Z [INFO] {7772caff53374818f06dc059f5a0f6af} Casbin service initialization via service.InitCasbin() attempted.
+2025-06-12T06:21:29.463Z [WARN] {7772caff53374818f06dc059f5a0f6af} Frontend static path 'web/admin/dist' not found. Frontend will not be served. This is normal if frontend has not been built yet.
+2025-06-12T06:21:29.463Z [INFO] {7772caff53374818f06dc059f5a0f6af} Starting Yuncms server on :8082

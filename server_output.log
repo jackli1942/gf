@@ -1,8 +1,24 @@
-2025-06-12T03:37:06.920Z [INFO] {15003dc55b2e48187a14ac58acaa54c2} Initializing i18n with path: 'resource/i18n' and default language: 'en'
-2025-06-12T03:37:06.922Z [DEBU] SetServerRoot path: /app/resource/public
-2025-06-12T03:37:06.922Z [INFO] {15003dc55b2e48187a14ac58acaa54c2} Starting Yuncms server on :8081
-2025-06-12T03:37:06.929Z [FATA] net.Listen address ":8081" failed: listen tcp :8081: bind: address already in use
-1. net.Listen address ":8081" failed
-2. listen tcp :8081: bind: address already in use
+2025-06-12T06:14:15.421Z [INFO] {c195a803ef3648184212bb12e0158353} Initializing i18n with path: 'resource/i18n' and default language: 'zh'
+2025-06-12T06:14:15.423Z [INFO] {c195a803ef3648184212bb12e0158353} Initializing Casbin service...
+2025-06-12T06:14:15.612Z [INFO] {2041e103ef3648184312bb123258465a} Casbin Service: Enforcer initialized successfully using dobyte/gf-casbin.
+2025-06-12T06:14:15.612Z [INFO] {2041e103ef3648184312bb123258465a} Casbin Service: Model: manifest/config/casbin_model.conf, Table: casbin_rules
+2025-06-12T06:14:15.612Z [INFO] {c195a803ef3648184212bb12e0158353} Casbin service initialization attempted.
+2025-06-12T06:14:15.613Z [DEBU] SetServerRoot path: /app/resource/public
+2025-06-12T06:14:15.614Z [FATA] AddStaticPath failed: cannot find "web/admin/dist" in following paths:
+1. /app
+2. /tmp/go-build4135474317/b001/exe
+1. cannot find "web/admin/dist" in following paths:
+1. /app
+2. /tmp/go-build4135474317/b001/exe
+   1).  yuncms/internal/cmd.init.func1
+        /app/internal/cmd/cmd.go:68
+   2).  main.main
+        /app/main.go:20
+
+Stack:
+1.  yuncms/internal/cmd.init.func1
+    /app/internal/cmd/cmd.go:68
+2.  main.main
+    /app/main.go:20
 
 exit status 1

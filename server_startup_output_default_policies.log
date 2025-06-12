@@ -1,0 +1,30 @@
+2025-06-12T06:21:29.148Z [INFO] {7772caff53374818f06dc059f5a0f6af} Initializing i18n with path: 'resource/i18n' and default language: 'zh'
+2025-06-12T06:21:29.152Z [INFO] {7772caff53374818f06dc059f5a0f6af} Initializing Casbin service via service.InitCasbin()...
+2025/06/12 06:21:29 Policy: p : []
+g : []
+
+2025-06-12T06:21:29.242Z [INFO] {6d1a2a0054374818f16dc059bf7ece51} Casbin Service: Policies loaded successfully from database.
+2025-06-12T06:21:29.242Z [INFO] {6d1a2a0054374818f16dc059bf7ece51} Casbin Service: Enforcer initialized successfully using dobyte/gf-casbin.
+2025-06-12T06:21:29.242Z [INFO] {6d1a2a0054374818f16dc059bf7ece51} Casbin Service: Model: manifest/config/casbin_model.conf, Table: casbin_rules
+2025-06-12T06:21:29.242Z [INFO] {6d1a2a0054374818f16dc059bf7ece51} Casbin Service: No policies found. Adding default admin role and permissions...
+2025-06-12T06:21:29.278Z [INFO] {6d1a2a0054374818f16dc059bf7ece51} Casbin Service: Default admin policy (admin_role, /*, *) added.
+2025-06-12T06:21:29.461Z [INFO] {6d1a2a0054374818f16dc059bf7ece51} Casbin Service: Default policies added and SavePolicy() executed.
+2025-06-12T06:21:29.462Z [INFO] {7772caff53374818f06dc059f5a0f6af} Casbin service initialization via service.InitCasbin() attempted.
+2025-06-12T06:21:29.463Z [DEBU] SetServerRoot path: /app/resource/public
+2025-06-12T06:21:29.463Z [WARN] {7772caff53374818f06dc059f5a0f6af} Frontend static path 'web/admin/dist' not found. Frontend will not be served. This is normal if frontend has not been built yet.
+2025-06-12T06:21:29.463Z [INFO] {7772caff53374818f06dc059f5a0f6af} Starting Yuncms server on :8082
+2025-06-12T06:21:29.490Z [INFO] pid[40180]: http server started listening on [:8082]
+2025-06-12T06:21:29.490Z [INFO] swagger ui is serving at address: http://127.0.0.1:8082/swagger/
+2025-06-12T06:21:29.490Z [INFO] openapi specification is serving at address: http://127.0.0.1:8082/api.json
+
+  ADDRESS | METHOD |   ROUTE    |                        HANDLER                        |    MIDDLEWARE
+----------|--------|------------|-------------------------------------------------------|--------------------
+  :8082   | ALL    | /api.json  | github.com/gogf/gf/v2/net/ghttp.(*Server).openapiSpec |
+----------|--------|------------|-------------------------------------------------------|--------------------
+  :8082   | ALL    | /health    | yuncms/internal/controller/health.(*CHealth).Health   |
+----------|--------|------------|-------------------------------------------------------|--------------------
+  :8082   | ALL    | /swagger/* | github.com/gogf/gf/v2/net/ghttp.(*Server).swaggerUI   | HOOK_BEFORE_SERVE
+----------|--------|------------|-------------------------------------------------------|--------------------
+
+2025-06-12T06:21:44.483Z 40180: server gracefully shutting down by signal: terminated
+2025-06-12T06:21:44.484Z [INFO] pid[40180]: all servers shutdown
