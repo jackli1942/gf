@@ -2,6 +2,7 @@ package router
 
 import (
 	"github.com/gogf/gf/v2/net/ghttp"
+	"yuncms/internal/app/controller" // Added User controller
 	"yuncms/internal/controller/health"
 	// Import other controllers here as they are created
 )
@@ -28,5 +29,14 @@ func BindController(s *ghttp.Server) {
 		// ... other v1 controllers
 		// )
 		// })
+
+		// API group v1
+		group.Group("/api/v1", func(apiV1Group *ghttp.RouterGroup) {
+			// apiV1Group.Middleware(service.Middleware().Auth) // Placeholder for auth middleware
+			apiV1Group.Bind(
+				controller.NewUser(), // Register UserController
+				// Add other v1 controllers here
+			)
+		})
 	})
 }

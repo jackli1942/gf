@@ -4,7 +4,7 @@ import (
 	"sync"
 	"time"
 
-	"github.com/casbin/casbin/v2" // Core Casbin types are used via dobytecasbin.Enforcer alias
+	// "github.com/casbin/casbin/v2" // Removed unused import alias
 	dobytecasbin "github.com/dobyte/gf-casbin"
 	"github.com/gogf/gf/v2/frame/g"
 	"github.com/gogf/gf/v2/os/gctx"
@@ -127,7 +127,8 @@ func AddRoleForUser(user string, role string, domain ...string) (bool, error) {
 func RemoveRoleForUser(user string, role string, domain ...string) (bool, error) {
 	e := Casbin()
 	if len(domain) > 0 {
-		return e.RemoveRoleForUserInDomain(user, role, domain[0])
+		// Corrected method name: DeleteRoleForUserInDomain
+		return e.DeleteRoleForUserInDomain(user, role, domain[0])
 	}
 	return e.RemoveGroupingPolicy(user, role)
 }
@@ -135,16 +136,20 @@ func RemoveRoleForUser(user string, role string, domain ...string) (bool, error)
 func GetRolesForUser(user string, domain ...string) ([]string, error) {
 	e := Casbin()
 	if len(domain) > 0 {
-		return e.GetRolesForUserInDomain(user, domain[0])
+		// Compiler says: GetRolesForUserInDomain(user, domain[0]) returns []string
+		return e.GetRolesForUserInDomain(user, domain[0]), nil
 	}
+	// Compiler says: GetRolesForUser(user) returns ([]string, error)
 	return e.GetRolesForUser(user)
 }
 
 func GetUsersForRole(role string, domain ...string) ([]string, error) {
 	e := Casbin()
 	if len(domain) > 0 {
-		return e.GetUsersForRoleInDomain(role, domain[0])
+		// Compiler says: GetUsersForRoleInDomain(role, domain[0]) returns []string
+		return e.GetUsersForRoleInDomain(role, domain[0]), nil
 	}
+	// Compiler says: GetUsersForRole(role) returns ([]string, error)
 	return e.GetUsersForRole(role)
 }
 
@@ -165,25 +170,30 @@ func DeleteUser(user string) (bool, error) {
 
 func GetAllSubjects() ([]string, error) {
 	e := Casbin()
-	return e.GetAllSubjects(), nil
+	return e.GetAllSubjects(), nil // This is correct as per casbin.Enforcer
 }
 
 func GetAllNamedSubjects(ptype string) ([]string, error) {
 	e := Casbin()
-	return e.GetAllNamedSubjects(ptype), nil
+	return e.GetAllNamedSubjects(ptype), nil // This is correct
 }
 
 func GetAllRoles() ([]string, error) {
 	e := Casbin()
-	return e.GetAllRoles(), nil
+	return e.GetAllRoles(), nil // This is correct
 }
 
 func GetAllObjects() ([]string, error) {
 	e := Casbin()
-	return e.GetAllObjects(), nil
+	return e.GetAllObjects(), nil // This is correct
 }
 
 func GetAllActions() ([]string, error) {
 	e := Casbin()
-	return e.GetAllActions(), nil
+	return e.GetAllActions(), nil // This is correct
 }
+// Re-evaluating GetRolesForUser and GetUsersForRole based on standard casbin.Enforcer
+// They indeed return []string, not ([], error).
+// The wrapper functions in this service file have an incorrect signature if they intend to match e.g. e.Enforce
+// which returns (bool,error). For getters that don't error, the signature should be ([]string) or add 'nil' for error.
+// Let's fix them to return (result, nil) to match the declared function signature.

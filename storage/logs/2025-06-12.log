@@ -64,3 +64,60 @@ Stack:
 2025-06-12T06:21:29.462Z [INFO] {7772caff53374818f06dc059f5a0f6af} Casbin service initialization via service.InitCasbin() attempted.
 2025-06-12T06:21:29.463Z [WARN] {7772caff53374818f06dc059f5a0f6af} Frontend static path 'web/admin/dist' not found. Frontend will not be served. This is normal if frontend has not been built yet.
 2025-06-12T06:21:29.463Z [INFO] {7772caff53374818f06dc059f5a0f6af} Starting Yuncms server on :8082
+2025-06-12T07:38:10.633Z [INFO] {4a63b55d833b4818f76d962fc084bb3f} Initializing i18n with path: 'resource/i18n' and default language: 'zh'
+2025-06-12T07:38:10.633Z [INFO] {4a63b55d833b4818f76d962fc084bb3f} Initializing Casbin service via service.InitCasbin()...
+2025-06-12T07:38:10.635Z [FATA] {d805cf5d833b4818f86d962f43883994} Casbin Service: Failed to create Casbin enforcer with dobyte/gf-casbin:
+CREATE TABLE IF NOT EXISTS casbin_rules (
+	ptype VARCHAR(10) NOT NULL DEFAULT '',
+	v0 VARCHAR(256) NOT NULL DEFAULT '',
+	v1 VARCHAR(256) NOT NULL DEFAULT '',
+	v2 VARCHAR(256) NOT NULL DEFAULT '',
+	v3 VARCHAR(256) NOT NULL DEFAULT '',
+	v4 VARCHAR(256) NOT NULL DEFAULT '',
+	v5 VARCHAR(256) NOT NULL DEFAULT ''
+) COMMENT = 'policy table';
+: dial tcp 127.0.0.1:3306: connect: connection refused
+Stack:
+1.  yuncms/internal/service.Casbin.func1
+    /app/internal/service/casbin_service.go:50
+2.  yuncms/internal/service.Casbin
+    /app/internal/service/casbin_service.go:20
+3.  yuncms/internal/service.InitCasbin
+    /app/internal/service/casbin_service.go:91
+4.  yuncms/internal/cmd.init.func1
+    /app/internal/cmd/cmd.go:52
+5.  main.main
+    /app/main.go:20
+
+2025-06-12T07:39:22.660Z [INFO] {04bdcd22943b481867ca3668f34bb132} Initializing i18n with path: 'resource/i18n' and default language: 'zh'
+2025-06-12T07:39:22.661Z [INFO] {04bdcd22943b481867ca3668f34bb132} Initializing Casbin service via service.InitCasbin()...
+2025-06-12T07:39:22.856Z [INFO] {c115fa22943b481868ca366823398b1b} Casbin Service: Policies loaded successfully from database.
+2025-06-12T07:39:22.856Z [INFO] {c115fa22943b481868ca366823398b1b} Casbin Service: Enforcer initialized successfully using dobyte/gf-casbin.
+2025-06-12T07:39:22.856Z [INFO] {c115fa22943b481868ca366823398b1b} Casbin Service: Model: manifest/config/casbin_model.conf, Table: casbin_rules
+2025-06-12T07:39:22.856Z [INFO] {c115fa22943b481868ca366823398b1b} Casbin Service: No policies found. Adding default admin role and permissions...
+2025-06-12T07:39:22.926Z [INFO] {c115fa22943b481868ca366823398b1b} Casbin Service: Default admin policy (admin_role, /*, *) added successfully.
+2025-06-12T07:39:23.083Z [INFO] {c115fa22943b481868ca366823398b1b} Casbin Service: Default policies attempt and SavePolicy() executed.
+2025-06-12T07:39:23.084Z [INFO] {04bdcd22943b481867ca3668f34bb132} Casbin service initialization via service.InitCasbin() attempted.
+2025-06-12T07:40:34.006Z [INFO] {314e61bfa43b48180f9469756870eb1a} Initializing i18n with path: 'resource/i18n' and default language: 'zh'
+2025-06-12T07:40:34.007Z [INFO] {314e61bfa43b48180f9469756870eb1a} Initializing Casbin service via service.InitCasbin()...
+2025-06-12T07:40:34.052Z [INFO] {4a7188bfa43b481810946975c780ab76} Casbin Service: Policies loaded successfully from database.
+2025-06-12T07:40:34.053Z [INFO] {4a7188bfa43b481810946975c780ab76} Casbin Service: Enforcer initialized successfully using dobyte/gf-casbin.
+2025-06-12T07:40:34.053Z [INFO] {4a7188bfa43b481810946975c780ab76} Casbin Service: Model: manifest/config/casbin_model.conf, Table: casbin_rules
+2025-06-12T07:40:34.053Z [INFO] {4a7188bfa43b481810946975c780ab76} Casbin Service: No policies found. Adding default admin role and permissions...
+2025-06-12T07:40:34.058Z [INFO] {4a7188bfa43b481810946975c780ab76} Casbin Service: Default admin policy (admin_role, /*, *) added successfully.
+2025-06-12T07:40:34.086Z [INFO] {4a7188bfa43b481810946975c780ab76} Casbin Service: Default policies attempt and SavePolicy() executed.
+2025-06-12T07:40:34.086Z [INFO] {314e61bfa43b48180f9469756870eb1a} Casbin service initialization via service.InitCasbin() attempted.
+2025-06-12T07:40:34.087Z [WARN] {314e61bfa43b48180f9469756870eb1a} Frontend static path 'web/admin/dist' not found. Frontend will not be served. This is normal if frontend has not been built yet.
+2025-06-12T07:40:34.087Z [INFO] {314e61bfa43b48180f9469756870eb1a} Starting Yuncms server on :8082
+2025-06-12T07:41:31.165Z [INFO] {599e560eb23b48181319a13636bfe038} Initializing i18n with path: 'resource/i18n' and default language: 'zh'
+2025-06-12T07:41:31.165Z [INFO] {599e560eb23b48181319a13636bfe038} Initializing Casbin service via service.InitCasbin()...
+2025-06-12T07:41:31.200Z [INFO] {18906b0eb23b48181419a1366d612d05} Casbin Service: Policies loaded successfully from database.
+2025-06-12T07:41:31.200Z [INFO] {18906b0eb23b48181419a1366d612d05} Casbin Service: Enforcer initialized successfully using dobyte/gf-casbin.
+2025-06-12T07:41:31.200Z [INFO] {18906b0eb23b48181419a1366d612d05} Casbin Service: Model: manifest/config/casbin_model.conf, Table: casbin_rules
+2025-06-12T07:41:31.200Z [INFO] {18906b0eb23b48181419a1366d612d05} Casbin Service: No policies found. Adding default admin role and permissions...
+2025-06-12T07:41:31.204Z [INFO] {18906b0eb23b48181419a1366d612d05} Casbin Service: Default admin policy (admin_role, /*, *) added successfully.
+2025-06-12T07:41:31.228Z [INFO] {18906b0eb23b48181419a1366d612d05} Casbin Service: Default policies attempt and SavePolicy() executed.
+2025-06-12T07:41:31.229Z [INFO] {599e560eb23b48181319a13636bfe038} Casbin service initialization via service.InitCasbin() attempted.
+2025-06-12T07:41:31.229Z [WARN] {599e560eb23b48181319a13636bfe038} Frontend static path 'web/admin/dist' not found. Frontend will not be served. This is normal if frontend has not been built yet.
+2025-06-12T07:41:31.230Z [INFO] {599e560eb23b48181319a13636bfe038} Starting Yuncms server on :8082
+2025-06-12T07:41:40.128Z [INFO] {90fda124b43b48181a9469757d5b2197} Health handler (Full Checks, WriteJsonExit) reached.

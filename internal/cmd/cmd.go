@@ -11,7 +11,7 @@ import (
 	"github.com/gogf/gf/v2/os/gcfg"
 	"github.com/gogf/gf/v2/os/gfile"
 	"yuncms/internal/router"
-	"yuncms/internal/service"
+	"yuncms/internal/app/service" // Ensure updated import path
 )
 
 var (

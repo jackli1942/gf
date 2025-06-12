@@ -1,4 +1,48 @@
-hello = "你好"
-yuncmsServiceRunning = "Yuncms 服务正在运行"
-welcomeToYuncms = "欢迎使用 Yuncms"
-EOF
+# Chinese translations
+
+# Health Check
+health_check_ok = "服务运行正常。"
+health_check_db_error = "数据库连接错误。"
+health_check_redis_error = "Redis连接错误。"
+health_check_full_ok = "服务完全运行正常 (包括数据库和Redis)。"
+
+# User Validation Messages
+user_username_required = "用户名为必填项。"
+user_username_length = "用户名长度必须在3到30个字符之间。"
+user_password_required = "密码为必填项。"
+user_password_length = "密码长度必须在6到30个字符之间。"
+user_nickname_required = "昵称为必填项。"
+user_nickname_length = "昵称长度必须在1到30个字符之间。"
+user_email_format = "无效的电子邮件格式。"
+user_phone_format = "无效的电话号码格式。"
+user_avatar_url = "无效的头像URL格式。"
+user_status_invalid = "无效的状态值。必须为0或1。"
+
+# Business Logic Error Messages
+email_already_taken = "此电子邮件地址已被注册。"
+phone_already_taken = "此电话号码已被注册。"
+username_already_taken = "此用户名已被占用。"
+user_not_found = "用户未找到。"
+
+# Generic
+save_success = "保存成功。"
+save_error = "保存失败。"
+delete_success = "删除成功。"
+delete_error = "删除失败。"
+update_success = "更新成功。"
+update_error = "更新失败。"
+record_not_found = "记录未找到。"
+input_invalid = "输入参数无效。"
+operation_failed = "操作失败。"
+permission_denied = "权限不足。"
+
+# It's good practice to include translations for default GoFrame gcode messages if you intend to use them.
+# For example:
+# GCodeNotFound = "请求的资源未找到。"
+# GCodeBusinessValidationFailed = "业务验证失败。"
+# GCodeInvalidParameter = "无效的参数。"
+# ... (and any others you expect to be user-facing from GoFrame's default error codes)
+# For now, only a few examples are provided. A full set would be extensive.
+GCodeInternalError = "服务器内部错误。"
+GCodeValidationFailed = "数据验证失败。" # Default for validation errors if specific rule message not found
+GCodeDbOperationError = "数据库操作失败。"
