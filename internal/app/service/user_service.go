@@ -9,19 +9,21 @@ import (
 	"github.com/gogf/gf/v2/errors/gerror"
 	"github.com/gogf/gf/v2/frame/g"
 	"github.com/gogf/gf/v2/os/gtime"
+	"github.com/gogf/gf/v2/util/gconv" // Added for gconv.String()
 	"github.com/google/uuid"
 	"golang.org/x/crypto/bcrypt"
 )
 
 // UserCreateInput is the DTO for creating a new user.
 type UserCreateInput struct {
-	Username string `json:"username" v:"required|length:3,30#Username is required|Username length must be between 3 and 30"`
-	Password string `json:"password" v:"required|length:6,30#Password is required|Password length must be between 6 and 30"`
-	Nickname string `json:"nickname" v:"required|length:1,30#Nickname is required"`
-	Email    string `json:"email"    v:"email#Invalid email format"`
-	Phone    string `json:"phone"`
-	Avatar   string `json:"avatar"`
-	Status   *int   `json:"status"   v:"in:0,1#Invalid status"` // Pointer to distinguish not-set from 0
+	Username string `json:"username" v:"required|length:3,30#user.usernameRequired|user.usernameLength"`
+	Password string `json:"password" v:"required|length:6,30#user.passwordRequired|user.passwordLength"`
+	Nickname string `json:"nickname" v:"required|length:1,30#user.nicknameRequired|user.nicknameLength"`
+	Email    string `json:"email"    v:"email#user.emailFormat"`
+	Phone    string `json:"phone"    v:"phone-loose#user.phoneFormat"`
+	Avatar   string `json:"avatar"   v:"url#user.avatarUrl"`
+	Status   *int   `json:"status"   v:"in:0,1#user.statusInvalid"`
+	RoleIds  []uint `json:"roleIds,omitempty" description:"List of role IDs to assign to the user"`
 }
 
 // UserService handles user-related business logic.
@@ -98,6 +100,29 @@ func (s *UserService) CreateUser(ctx context.Context, in UserCreateInput) (*mode
 	// 7. Set the ID on the entity and return
 	userEntity.Id = uint(lastInsertId)
 	// Password should not be returned, it's already `json:"-"` in the entity
+	userEntity.Password = "" // Explicitly clear for return DTO consistency
+
+	// 8. Assign roles via Casbin
+	if len(in.RoleIds) > 0 {
+		e := Casbin() // Get Casbin enforcer
+		if e == nil {
+			g.Log().Error(ctx, "CreateUser: Casbin enforcer is nil, cannot assign roles.")
+			// Depending on policy, you might return an error here or just log
+		} else {
+			userIdStr := gconv.String(userEntity.Id)
+			for _, roleId := range in.RoleIds {
+				roleIdStr := gconv.String(roleId) // Assuming roles are identified by their stringified ID in Casbin
+				// Check if role exists can be added here if necessary by querying a role table
+				_, err := e.AddGroupingPolicy(userIdStr, roleIdStr)
+				if err != nil {
+					g.Log().Errorf(ctx, "CreateUser: Failed to assign role ID %s to user ID %s: %v", roleIdStr, userIdStr, err)
+					// Decide on error handling: continue, or collect errors, or return immediately
+				} else {
+					g.Log().Debugf(ctx, "CreateUser: Successfully assigned role ID %s to user ID %s", roleIdStr, userIdStr)
+				}
+			}
+		}
+	}
 	return userEntity, nil
 }
 
@@ -159,12 +184,13 @@ type ListUsersOutput struct {
 // UserUpdateInput is the DTO for updating an existing user.
 // Fields are pointers to distinguish between zero-values and fields not provided.
 type UserUpdateInput struct {
-	Nickname  *string `json:"nickname" v:"length:1,30#nickname_length_error"`
-	Password  *string `json:"password" v:"length:6,30#password_length_error"`
-	Email     *string `json:"email"    v:"email#email_format_error"`
-	Phone     *string `json:"phone"    v:"phone-loose#phone_format_error"`
-	Avatar    *string `json:"avatar"   v:"url#avatar_url_error"`
-	Status    *int    `json:"status"   v:"in:0,1#status_invalid_error"`
+	Nickname  *string `json:"nickname" v:"length:1,30#user.nicknameLength"`
+	Password  *string `json:"password" v:"length:6,30#user.passwordLength"` // New password
+	Email     *string `json:"email"    v:"email#user.emailFormat"`
+	Phone     *string `json:"phone"    v:"phone-loose#user.phoneFormat"`
+	Avatar    *string `json:"avatar"   v:"url#user.avatarUrl"`
+	Status    *int    `json:"status"   v:"in:0,1#user.statusInvalid"`
+	RoleIds   *[]uint `json:"roleIds,omitempty" description:"List of role IDs. If provided, existing roles are replaced. If nil, roles are not changed."`
 }
 
 // ListUsers retrieves a paginated list of users.
@@ -182,6 +208,9 @@ func (s *UserService) ListUsers(ctx context.Context, in ListUsersInput) (*ListUs
 	}
 	if users == nil { // Ensure users is an empty slice, not nil, if no records found
 		users = []*model.User{}
+	}
+	for _, u := range users { // Clear passwords for all users in list
+		u.Password = ""
 	}
 
 	total, err := dao.User.Count(ctx)
@@ -211,8 +240,8 @@ func (s *UserService) UpdateUser(ctx context.Context, id uint, in UserUpdateInpu
 	// 2. Validate input
 	// Note: Validator runs on all fields in `in`, even if some are nil.
 	// The validation rules should be appropriate for optional fields (e.g. `v:"length:1,30"` on a *string will validate if not nil).
-	if err := g.Validator().Data(in).Run(ctx); err != nil {
-		return nil, err // err is already gerror/gvalid.Error
+	if err := g.Validator().Data(in).Run(ctx); err != nil { // Validates UserUpdateInput including RoleIds if tags were there
+		return nil, err
 	}
 
 	updateData := g.Map{}
@@ -297,7 +326,41 @@ func (s *UserService) UpdateUser(ctx context.Context, id uint, in UserUpdateInpu
 		return nil, gerror.Wrapf(err, "Failed to retrieve updated user with ID %d", id)
 	}
 	if updatedUser == nil { // Should not happen if update succeeded
-		return nil, gerror.NewCodef(gcode.CodeNotFound, "Updated user with ID %d not found after update", id)
+		return nil, gerror.NewCodef(gcode.CodeNotFound, g.I18n().Tf(ctx, "user.notFoundId", id))
+	}
+	updatedUser.Password = "" // Clear password for return
+
+	// 12. Update Casbin roles if RoleIds field is provided
+	if in.RoleIds != nil {
+		e := Casbin()
+		if e == nil {
+			g.Log().Error(ctx, "UpdateUser: Casbin enforcer is nil, cannot update roles.")
+			// Depending on policy, might return error or just log
+		} else {
+			userIdStr := gconv.String(id)
+			// Remove existing roles for the user
+			_, err = e.RemoveFilteredGroupingPolicy(0, userIdStr)
+			if err != nil {
+				g.Log().Errorf(ctx, "UpdateUser: Failed to remove existing roles for user ID %s: %v", userIdStr, err)
+				// Decide on error handling
+			} else {
+				g.Log().Debugf(ctx, "UpdateUser: Successfully removed existing roles for user ID %s", userIdStr)
+			}
+
+			// Add new roles
+			for _, roleId := range *in.RoleIds {
+				roleIdStr := gconv.String(roleId)
+				// Check if role exists can be added here
+				added, err := e.AddGroupingPolicy(userIdStr, roleIdStr)
+				if err != nil {
+					g.Log().Errorf(ctx, "UpdateUser: Failed to add role ID %s to user ID %s: %v", roleIdStr, userIdStr, err)
+				} else if !added {
+					g.Log().Warningf(ctx, "UpdateUser: Policy for role ID %s to user ID %s may already exist or was not added.", roleIdStr, userIdStr)
+				} else {
+					g.Log().Debugf(ctx, "UpdateUser: Successfully added role ID %s to user ID %s", roleIdStr, userIdStr)
+				}
+			}
+		}
 	}
 
 	return updatedUser, nil
@@ -344,3 +407,194 @@ func (s *UserService) DeleteUser(ctx context.Context, id uint) error {
 
 	return nil // User deleted successfully from DB
 }
+
+// --- User Login ---
+
+// UserLoginInput is the DTO for user login.
+type UserLoginInput struct {
+	Username string `json:"username" v:"required#auth.usernameRequired"`
+	Password string `json:"password" v:"required#auth.passwordRequired"`
+}
+
+// UserLoginOutput is the DTO for user login response.
+type UserLoginOutput struct {
+	Token    string      `json:"token"`
+	ExpireAt int64       `json:"expireAt"` // Expiration timestamp for the token
+	User     *model.User `json:"user"`
+}
+
+// LoginUser handles the user login process.
+func (s *UserService) LoginUser(ctx context.Context, in UserLoginInput) (out *UserLoginOutput, err error) {
+	// 1. Validate input
+	if errVal := g.Validator().Data(in).Run(ctx); errVal != nil {
+		// Use the validation messages from struct tags (e.g., #auth.usernameRequired)
+		return nil, gerror.WrapCode(gcode.CodeValidationFailed, errVal)
+	}
+
+	// 2. Fetch user by username
+	user, err := dao.User.GetByUsername(ctx, in.Username) // Assumes this DAO method exists
+	if err != nil {
+		g.Log().Errorf(ctx, "LoginUser: Error fetching user '%s': %v", in.Username, err)
+		return nil, gerror.NewCode(gcode.CodeValidationFailed, g.I18n().T(ctx, "auth.invalidCredentials"))
+	}
+	if user == nil {
+		return nil, gerror.NewCode(gcode.CodeValidationFailed, g.I18n().T(ctx, "auth.invalidCredentials"))
+	}
+
+	// 3. Check user status
+	if user.Status == 0 { // Assuming 0 means disabled
+		return nil, gerror.NewCode(gcode.CodeValidationFailed, g.I18n().T(ctx, "auth.userDisabled"))
+	}
+
+	// 4. Compare hashed password
+	err = bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(in.Password))
+	if err != nil { // Handles mismatch (ErrMismatchedHashAndPassword) and other potential errors
+		return nil, gerror.NewCode(gcode.CodeValidationFailed, g.I18n().T(ctx, "auth.invalidCredentials"))
+	}
+
+	// 5. Generate JWT token using TokenService
+	// Ensure NewTokenService() returns ITokenService from internal/service (not internal/app/service)
+	tokenGenService := NewTokenService()
+	tokenString, expireAt, tokenErr := tokenGenService.GenerateUserToken(ctx, user.Id, user.Username)
+
+	if tokenErr != nil {
+		// token_service.GenerateUserToken already logs and wraps error with i18n key "auth.tokenGenerationFailed"
+		return nil, tokenErr
+	}
+
+	// 6. Prepare output
+	user.Password = "" // Clear password before returning
+
+	out = &UserLoginOutput{
+		Token:    tokenString,
+		ExpireAt: expireAt,
+		User:     user,
+	}
+
+	return out, nil
+}
+
+// InitPassword allows an administrator to reset/initialize a user's password.
+func (s *UserService) InitPassword(ctx context.Context, userId uint, newPassword string) error {
+	// 1. Validate userId (basic check, controller should also validate path param)
+	if userId == 0 {
+		return gerror.NewCodef(gcode.CodeInvalidArgument, g.I18n().T(ctx, "user.idInvalid"))
+	}
+
+	// 2. Check if user exists
+	user, err := dao.User.GetById(ctx, userId)
+	if err != nil {
+		return gerror.Wrapf(err, "InitPassword: Failed to retrieve user with ID %d", userId)
+	}
+	if user == nil {
+		return gerror.NewCodef(gcode.CodeNotFound, g.I18n().Tf(ctx, "user.notFoundId", userId))
+	}
+
+	// 3. Validate newPassword length (service level validation as well)
+	// This duplicates controller DTO validation but ensures service integrity.
+	// Using a generic validation error key here.
+	if len(newPassword) < 6 || len(newPassword) > 30 { // Assuming same constraints as create/update
+		return gerror.NewCodef(gcode.CodeValidationFailed, g.I18n().T(ctx, "validation.passwordLength"))
+	}
+
+	// 4. Hash the new password
+	hashedPassword, bcryptErr := bcrypt.GenerateFromPassword([]byte(newPassword), bcrypt.DefaultCost)
+	if bcryptErr != nil {
+		g.Log().Errorf(ctx, "InitPassword: Failed to hash new password for UserID %d: %v", userId, bcryptErr)
+		return gerror.Wrap(bcryptErr, "Failed to hash new password")
+	}
+
+	// 5. Update the user's password in the database
+	updateData := g.Map{
+		dao.User.Columns.Password:  string(hashedPassword),
+		dao.User.Columns.UpdatedAt: gtime.Now(),
+	}
+
+	_, err = dao.User.Ctx(ctx).Data(updateData).Where(dao.User.Columns.Id, userId).Update()
+	if err != nil {
+		g.Log().Errorf(ctx, "InitPassword: Failed to update password for UserID %d: %v", userId, err)
+		return gerror.Wrapf(err, "Failed to update password for UserID %d", userId)
+	}
+
+	g.Log().Infof(ctx, "Password for UserID %d has been reset by an admin.", userId)
+
+	// Optionally: Invalidate user's existing tokens/sessions here by calling TokenService.KickUserTokens(ctx, userId)
+	// tokenService := NewTokenService()
+	// if errKick := tokenService.KickUserTokens(ctx, userId); errKick != nil {
+	// 	g.Log().Warningf(ctx, "InitPassword: Failed to kick existing tokens for UserID %d after password reset: %v", userId, errKick)
+		// Decide if this should be a critical error. For now, just log.
+	// }
+
+	return nil
+}
+
+// ModifyPassword allows an authenticated user to change their own password.
+func (s *UserService) ModifyPassword(ctx context.Context, userId uint, oldPassword string, newPassword string) error {
+	// 1. Basic validation for inputs
+	if userId == 0 { // Should be caught by middleware, but good practice
+		return gerror.NewCodef(gcode.CodeInvalidArgument, g.I18n().T(ctx, "user.idInvalid"))
+	}
+	if oldPassword == "" {
+		return gerror.NewCode(gcode.CodeValidationFailed, g.I18n().T(ctx, "auth.oldPasswordRequired"))
+	}
+	if len(newPassword) < 6 || len(newPassword) > 30 { // Assuming same constraints
+		return gerror.NewCode(gcode.CodeValidationFailed, g.I18n().T(ctx, "validation.passwordLength"))
+	}
+	if oldPassword == newPassword {
+		return gerror.NewCode(gcode.CodeValidationFailed, g.I18n().T(ctx, "auth.newPasswordSameAsOld"))
+	}
+
+
+	// 2. Fetch the user
+	user, err := dao.User.GetById(ctx, userId)
+	if err != nil {
+		return gerror.Wrapf(err, "ModifyPassword: Failed to retrieve user with ID %d", userId)
+	}
+	if user == nil {
+		return gerror.NewCodef(gcode.CodeNotFound, g.I18n().Tf(ctx, "user.notFoundId", userId))
+	}
+
+	// 3. Verify oldPassword against the user's stored hashed password
+	err = bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(oldPassword))
+	if err != nil { // Handles mismatch (ErrMismatchedHashAndPassword)
+		return gerror.NewCode(gcode.CodeValidationFailed, g.I18n().T(ctx, "auth.oldPasswordIncorrect"))
+	}
+
+	// 4. Hash the newPassword
+	hashedNewPassword, bcryptErr := bcrypt.GenerateFromPassword([]byte(newPassword), bcrypt.DefaultCost)
+	if bcryptErr != nil {
+		g.Log().Errorf(ctx, "ModifyPassword: Failed to hash new password for UserID %d: %v", userId, bcryptErr)
+		return gerror.Wrap(bcryptErr, "Failed to hash new password")
+	}
+
+	// 5. Update the user's password in the database
+	updateData := g.Map{
+		dao.User.Columns.Password:  string(hashedNewPassword),
+		dao.User.Columns.UpdatedAt: gtime.Now(),
+	}
+	_, err = dao.User.Ctx(ctx).Data(updateData).Where(dao.User.Columns.Id, userId).Update()
+	if err != nil {
+		g.Log().Errorf(ctx, "ModifyPassword: Failed to update password for UserID %d: %v", userId, err)
+		return gerror.Wrapf(err, "Failed to update password for UserID %d", userId)
+	}
+
+	g.Log().Infof(ctx, "Password for UserID %d has been changed by the user.", userId)
+
+	// 6. Invalidate user's existing tokens/sessions
+	tokenService := NewTokenService() // Assuming NewTokenService() returns ITokenService from internal/service
+	if errKick := tokenService.KickUserTokens(ctx, userId); errKick != nil {
+		g.Log().Warningf(ctx, "ModifyPassword: Failed to kick existing tokens for UserID %d after password change: %v", userId, errKick)
+		// Not returning this error as primary operation (password change) was successful.
+		// This could be logged to an audit trail or monitoring system.
+	} else {
+		g.Log().Infof(ctx, "ModifyPassword: Successfully kicked existing tokens for UserID %d.", userId)
+	}
+
+	return nil
+}
+
+
+// Note: Ensure `user_dao.go` has methods like GetByUsername, GetByEmailExcludeId, List, Count, Create, Update, Delete.
+// Note: Ensure `NewTokenService()` is correctly referencing the token service from `internal/service/token_service.go`.
+// Note: Ensure `Casbin()` is correctly referencing the casbin service from `internal/app/service/casbin_service.go`.
+// Need to import "github.com/gogf/gf/v2/util/gconv" for gconv.String().

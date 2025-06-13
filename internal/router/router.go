@@ -2,41 +2,40 @@ package router
 
 import (
 	"github.com/gogf/gf/v2/net/ghttp"
-	"yuncms/internal/app/controller" // Added User controller
+	appCtrl "yuncms/internal/app/controller" // User controller from internal/app
+	"yuncms/internal/controller"             // Department controller from internal/controller
 	"yuncms/internal/controller/health"
-	// Import other controllers here as they are created
+	"yuncms/internal/middleware" // Import the middleware
 )
 
-// BindController registers routes for all controllers.
-// It's a common pattern to have a function that groups all router registrations.
+// BindController registers routes for all controllers and applies middleware.
 func BindController(s *ghttp.Server) {
-	s.Group("/", func(group *ghttp.RouterGroup) {
-		// Register health check controller
-		group.Bind(
+	s.Group("/", func(rootGroup *ghttp.RouterGroup) {
+		// Health check is public
+		rootGroup.Bind(
 			health.New(),
 		)
 
-		// Example of a simple root handler (can be removed if health controller is at root path or if other groups are defined)
-		// group.ALL("/", func(r *ghttp.Request) {
-		//	r.Response.Writeln("Welcome to Yuncms API")
-		// })
+		// API v1 Group with Authentication Middleware
+		apiV1Group := rootGroup.Group("/api/v1")
+		// Apply AuthMiddleware first, then CasbinMiddleware
+		apiV1Group.Middleware(middleware.AuthMiddleware, middleware.CasbinMiddleware)
 
-		// TODO: Register other domain controllers like user, department, etc.
-		// group.Group("/api/v1", func(apiV1Group *ghttp.RouterGroup) {
-		// apiV1Group.Middleware(service.Middleware().Auth) // Example middleware
-		// apiV1Group.Bind(
-		// user.NewV1(),
-		// ... other v1 controllers
-		// )
-		// })
+		apiV1Group.Bind(
+			appCtrl.NewUser(),          // Registers routes from UserController in internal/app/controller
+			controller.NewDepartmentController(), // Registers routes from DepartmentController in internal/controller
+			// Add other protected controllers here
+		)
 
-		// API group v1
-		group.Group("/api/v1", func(apiV1Group *ghttp.RouterGroup) {
-			// apiV1Group.Middleware(service.Middleware().Auth) // Placeholder for auth middleware
-			apiV1Group.Bind(
-				controller.NewUser(), // Register UserController
-				// Add other v1 controllers here
-			)
-		})
+		// Note: If there are specific public routes within /api/v1 (besides /api/v1/auth/login which is handled by exemptions),
+		// they would need to be defined outside this group or have the middleware selectively applied/bypassed.
+		// For now, all of /api/v1 is protected except explicitly exempted paths in AuthMiddleware.
 	})
+
+	// Example: If login was outside /api/v1 group and public
+	// s.Group("/", func(publicGroup *ghttp.RouterGroup) {
+	//     publicGroup.Bind(
+	//         appCtrl.NewUser(), // Assuming Login is part of NewUser and its g.Meta path makes it distinct
+	//     )
+	// })
 }
