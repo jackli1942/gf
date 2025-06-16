@@ -1,0 +1,46 @@
+# Database Configuration
+database:
+  default:
+    host:     "127.0.0.1"
+    port:     "3306"
+    user:     "root"
+    pass:     ""
+    name:     "yuncms_dev"
+    type:     "mysql"
+    charset:  "utf8mb4"
+    debug:    true # Enable debug mode for development
+    # dryRun:   false # Set to true to not execute any SQL
+    # logger:
+    #   level: "all"
+    #   stdout: true
+
+# Redis Configuration
+redis:
+  default:
+    address: "127.0.0.1:6379"
+    db:      0
+    # pass:    "" # No password set for Redis in docker-compose
+    # idleTimeout: "60s"
+    # maxActive: 100
+    # tls: false
+
+# Logger Configuration (Optional, but good for development)
+logger:
+  path:     "logs"    # Log file storage directory
+  level:    "all"     # Log level for file
+  stdout:   true      # Output log to stdout as well
+  rotateSize: "100M"  # Rotate log file by size: 100M
+  rotateExpire: "30d" # Rotate log file by expire time: 30 days
+  json: false         # Format log content in JSON
+
+# Server Configuration (Placeholder, will be used later)
+server:
+  address: ":8080" # Default server address
+  # serverRoot: "public"
+  # serverAgent: "yuncms"
+  # logPath: "logs/server"
+  # PProfEnabled: true
+
+# Casbin Configuration
+casbin:
+  model: "manifest/config/casbin_model.conf"
