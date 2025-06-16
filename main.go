@@ -2,59 +2,70 @@ package main
 
 import (
 	"context"
-	"yuncms/internal/cmd" // Import your new migrate command package
-	// _ "yuncms/internal/packed" // Import packed for side effects if used - Commented out as not used yet
-
+	"yuncms/internal/cmd"
+	_ "yuncms/internal/boot"
+	"yuncms/internal/router"
 	"github.com/gogf/gf/v2/frame/g"
 	"github.com/gogf/gf/v2/os/gcmd"
     "github.com/gogf/gf/v2/os/gcfg"
     "github.com/gogf/gf/v2/os/gfile"
     "github.com/gogf/gf/v2/os/glog"
-
-    // Import the MySQL driver
-	_ "github.com/gogf/gf/contrib/drivers/mysql/v2"
+    "github.com/gogf/gf/v2/os/gproc" // Added for gproc.Pid()
+    _ "github.com/gogf/gf/contrib/drivers/mysql/v2" // Ensure DB driver is imported
 )
 
 func main() {
-	// Set config path for main execution context
-    // This ensures that no matter how main.go is run, it finds its config.
-    // This is similar to what's done in the migrate.go init()
-    configPath := "manifest/config" // Relative path from project root
-	ctx := context.Background() // Create a context for main
-    // For robust path detection, you might use GetMainPkgPath or runtime caller,
-    // but for subtasks and typical project runs, this relative path is often sufficient.
-    // If running from a different working directory, this might need adjustment.
-    // The one in migrate.go's init() is more for when migrate.go is used as a library.
+    ctx := context.Background()
+    // Configuration Path Setup (ensure this is robust as per previous steps)
+    configPath := "manifest/config"
+    // Try absolute path for subtask environment if relative doesn't exist
     if !gfile.Exists(configPath) {
-         // Attempt an absolute path if running in subtask environment
          altPath := "/app/manifest/config"
          if gfile.Exists(altPath) {
              configPath = altPath
+         } else {
+              // Fallback to a path relative to where main.go might be if not at root
+              // This case might be less common for typical project structures but added for robustness
+              altPath = "./manifest/config"
+              if gfile.Exists(altPath) {
+                  configPath = altPath
+              } else {
+                  glog.Fatal(ctx, "Main: Config directory 'manifest/config' not found at expected paths (CWD, /app, ./).")
+                  return // Exit if config is critical and not found
+              }
          }
     }
-    // It's good practice to set this early.
-    // Using (*gcfg.AdapterFile) assumes the default adapter is file-based.
-    if adapterFile, ok := g.Cfg().GetAdapter().(*gcfg.AdapterFile); ok {
-        adapterFile.SetPath(configPath)
+    // Set the path for the default configuration adapter
+    // Ensure this runs before any g.Cfg().MustGet calls in command Funcs or other inits that depend on it
+    if adapter, ok := g.Cfg().GetAdapter().(*gcfg.AdapterFile); ok {
+        // It's usually safe to set the path here, as main.go's init phase (if any) or direct calls
+        // are the earliest point for application-wide config.
+        // The boot.go init also attempts this, this ensures it if boot.go didn't run or failed.
+        adapter.SetPath(configPath)
         glog.Debug(ctx, "Main: Configuration path set to:", configPath)
     } else {
-        glog.Warning(ctx, "Main: Default config adapter is not *gcfg.AdapterFile, path not set.")
+        glog.Warning(ctx, "Main: Default config adapter is not *gcfg.AdapterFile. Path may not be correctly set if default search paths fail.")
     }
 
-	rootCmd := gcmd.Command{
+    // Define the main server command
+	mainCmd := &gcmd.Command{ // Changed to pointer to use AddCommand method correctly
 		Name:  "main",
-		Usage: "main",
-		Brief: "start http server",
+		Usage: "main (no args) to start server, or [subcommand]", // Updated Usage
+		Brief: "start http server for yuncms or run subcommands",    // Updated Brief
 		Func: func(ctx context.Context, parser *gcmd.Parser) (err error) {
-			g.Log().Info(ctx, "yuncms server starting...")
-			// Placeholder for actual server start, e.g., g.Server().Run()
-            // For now, just a message. We'll implement server start in a later task.
-			g.Log().Info(ctx, "yuncms server placeholder. Implement server start later.")
+			s := g.Server() // Get default server instance
+            router.BindCentralRouter(s) // Bind all application routes
+
+			serverAddr := g.Cfg().MustGet(ctx, "server.address", ":8080").String()
+            s.SetAddr(serverAddr) // Set server address
+            g.Log().Infof(ctx, "yuncms server starting at http://127.0.0.1%s (PID: %d)", serverAddr, gproc.Pid())
+			s.Run() // Start the server
 			return nil
 		},
 	}
-	// Add the migrate command to the root command.
-	rootCmd.AddCommand(&cmd.Migrate)
-	// Execute the root command.
-	rootCmd.Run(ctx)
+    // Add other commands like migrate
+    mainCmd.AddCommand(&cmd.Migrate)
+
+    // Execute the main command
+    mainCmd.Run(ctx)
 }

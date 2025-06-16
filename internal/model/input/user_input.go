@@ -14,3 +14,13 @@ type UserUpdateInput struct {
 	Status   *int    `json:"status"   v:"in:1,2#Invalid status value, must be 1 or 2"`
 	// Password change would typically be a separate endpoint/input
 }
+
+type UserGetByIdInput struct {
+	Id uint64 `json:"id" v:"required|min:1#User ID is required and must be positive"`
+}
+
+type UserListInput struct {
+	Page     int `json:"page" v:"min:0#Page number cannot be negative" d:"1"`
+	PageSize int `json:"pageSize" v:"min:1|max:100#Page size must be between 1 and 100" d:"10"`
+	// Add other filter fields like username, status etc. as needed later
+}

@@ -67,114 +67,130 @@ Workaround Applied: Created `manifest/sql/init_schema.sql` and executed it direc
   - Notes:
     Created users table via SQL migration (`manifest/sql/0001_create_users_table.sql`). Manually created User DAO (`internal/dao/user_dao.go`), Entity (`user_entity.go`), and Input (`user_input.go`) models. Implemented basic UserLogic (`internal/logic/user/user_logic.go` for CreateUser, GetUserByUsername) and corresponding UserService (`internal/service/user.go`). Unit tests for creating and retrieving users (`user_logic_test.go`) pass, including checks for username duplication and fetching non-existent users. Full CRUD and other layers (Controller, API, Router) will be handled in subsequent tasks.
 
-- **Task 7: Implement Department Management.**
+- **Task 7: Refine User Management (Controllers, API Routes, Full CRUD).**
+  - Status: Completed
+  - Reference Links:
+    - GoFrame Controller: https://goframe.org/docs/net/ghttp/controller-router-group
+    - GoFrame Validation (i18n): https://goframe.org/docs/component/gvalid/index#internationalization
+    - GoFrame Router: https://goframe.org/docs/net/ghttp/router
+  - Notes:
+    - Sub-step 7a: Extended user input/output models (UserGetByIdInput, UserListInput, UserOutput, UserListOutput). Added Update, Delete, List methods to User DAO.
+    - Sub-step 7b: Extended UserLogic and UserService for full CRUD (GetById, Update, Delete, List), including i18n for error messages.
+    - Sub-step 7c: Implemented UserController with Create, GetById, Update, Delete, List methods. Integrated request parsing, GoFrame validation, and i18n for responses/validation errors.
+    - Sub-step 7d: Defined API routes for User CRUD in internal/router/user_router.go. Implemented LanguageMiddleware for i18n in internal/router/router.go. Updated main.go to bind routes and start the HTTP server.
+    - Sub-step 7e: Extended unit tests in internal/logic/user/user_logic_test.go to cover UpdateUser, DeleteUser, and ListUsers logic, including checks for i18n error messages and data integrity. All user logic tests pass.
+    - Overall Task Status: Completed. Full CRUD backend for User Management is now implemented.
+
+- **Task 8: Implement Department Management.** (was 7)
+  - Status: In Progress
+  - Reference Links:
+  - Notes:
+    - Foundational backend for Department Management: Created DB migration, Models (Entity, Input, Output), DAO, Logic, and Service for CRUD operations (including tree building for GetTree). Basic unit tests for Create/Get, Update, Delete, and List/Tree logic pass. Controller and API routes pending.
+
+- **Task 9: Implement Post Management.** (was 8)
+  - Status: In Progress
+  - Reference Links:
+  - Notes:
+    - Foundational backend for Post Management: Created DB migration (`0003_create_posts_table.sql`), Models (Entity, Input, Output for Post), DAO, Logic, and Service layers for full CRUD operations. Added i18n keys for post-specific messages. Unit tests for PostLogic (Create, GetById, Update, Delete, List) all pass. Controller and API routes are pending.
+
+- **Task 10: Implement Menu Management (linking to Casbin policies).** (was 9)
   - Status: Pending
   - Reference Links:
   - Notes:
 
-- **Task 8: Implement Post Management.**
+- **Task 11: Implement Role Management (linking to Casbin policies).** (was 10)
   - Status: Pending
   - Reference Links:
   - Notes:
 
-- **Task 9: Implement Menu Management (linking to Casbin policies).**
+- **Task 12: Implement Dictionary Management.** (was 11)
   - Status: Pending
   - Reference Links:
   - Notes:
 
-- **Task 10: Implement Role Management (linking to Casbin policies).**
+- **Task 13: Implement Parameter Management.** (was 12)
   - Status: Pending
   - Reference Links:
   - Notes:
 
-- **Task 11: Implement Dictionary Management.**
+- **Task 14: Implement Notification/Announcement Management.** (was 13)
   - Status: Pending
   - Reference Links:
   - Notes:
 
-- **Task 12: Implement Parameter Management.**
+- **Task 15: Implement Operation Log.** (was 14)
   - Status: Pending
   - Reference Links:
   - Notes:
 
-- **Task 13: Implement Notification/Announcement Management.**
+- **Task 16: Implement Login Log.** (was 15)
   - Status: Pending
   - Reference Links:
   - Notes:
 
-- **Task 14: Implement Operation Log.**
+- **Task 17: Implement Code Generation (Backend Foundation).** (was 16)
   - Status: Pending
   - Reference Links:
   - Notes:
 
-- **Task 15: Implement Login Log.**
+- **Task 18: Implement Module Management Foundation.** (was 17)
   - Status: Pending
   - Reference Links:
   - Notes:
 
-- **Task 16: Implement Code Generation (Backend Foundation).**
+- **Task 19: Implement Scheduled Tasks (CRUD & Logging).** (was 18)
   - Status: Pending
   - Reference Links:
   - Notes:
 
-- **Task 17: Implement Module Management Foundation.**
-  - Status: Pending
-  - Reference Links:
-  - Notes:
-
-- **Task 18: Implement Scheduled Tasks (CRUD & Logging).**
-  - Status: Pending
-  - Reference Links:
-  - Notes:
-
-- **Task 19: Implement Attachment Management.**
+- **Task 20: Implement Attachment Management.** (was 19)
   - Status: Pending
   - Reference Links:
   - Notes:
 
 ## Phase 3: Technical Feature Implementation
 
-- **Task 20: Verify PostgreSQL Compatibility.**
+- **Task 21: Verify PostgreSQL Compatibility.** (was 20)
   - Status: Pending
   - Reference Links:
   - Notes:
 
-- **Task 21: Implement Multi-language Support.**
+- **Task 22: Implement Multi-language Support.** (was 21)
   - Status: Pending
   - Reference Links:
   - Notes:
 
-- **Task 22: Implement Multi-theme Support (Backend Hooks).**
+- **Task 23: Implement Multi-theme Support (Backend Hooks).** (was 22)
   - Status: Pending
   - Reference Links:
   - Notes:
 
-- **Task 23: Implement Redis-based Queues.**
+- **Task 24: Implement Redis-based Queues.** (was 23)
   - Status: Pending
   - Reference Links:
   - Notes:
 
-- **Task 24: Implement WebSocket Support.**
+- **Task 25: Implement WebSocket Support.** (was 24)
   - Status: Pending
   - Reference Links:
   - Notes:
 
-- **Task 25: Implement Global DB Caching.**
+- **Task 26: Implement Global DB Caching.** (was 25)
   - Status: Pending
   - Reference Links:
   - Notes:
 
-- **Task 26: Implement Automatic API Documentation.**
+- **Task 27: Implement Automatic API Documentation.** (was 26)
   - Status: Pending
   - Reference Links:
   - Notes:
 
-- **Task 27: Implement System Monitoring (Backend Logic).**
+- **Task 28: Implement System Monitoring (Backend Logic).** (was 27)
   - Status: Pending
   - Reference Links:
   - Notes:
 
-- **Task 28: Create Application Dockerfile.**
+- **Task 29: Create Application Dockerfile.** (was 28)
   - Status: Pending
   - Reference Links:
   - Notes:

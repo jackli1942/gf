@@ -1,0 +1,25 @@
+# yuncms English translations
+hello: Hello World
+welcome: Welcome to {Appname}
+
+# Errors
+error_default: "Operation failed"
+error_db: "Database operation error"
+error_user_not_found: "User not found"
+error_username_exists: "Username '{Username}' already exists"
+error_invalid_input: "Invalid input: {Reason}"
+error_password_required: "Password is required"
+error_username_required: "Username is required"
+error_length_min: "{Field} must be at least {Min} characters long"
+error_length_max: "{Field} cannot exceed {Max} characters"
+error_validation_failed: "Data validation failed"
+
+# User specific messages
+user_created_successfully: "User created successfully"
+user_updated_successfully: "User updated successfully"
+user_deleted_successfully: "User deleted successfully"
+
+# User specific messages
+user_created_successfully: "User created successfully"
+user_updated_successfully: "User updated successfully"
+user_deleted_successfully: "User deleted successfully"

@@ -1,0 +1,39 @@
+# yuncms Chinese translations
+hello: 你好世界
+welcome: 欢迎使用 {Appname}
+
+# Errors
+error_default: "操作失败"
+error_db: "数据库操作错误"
+error_user_not_found: "用户未找到"
+error_username_exists: "用户名 '{Username}' 已存在"
+error_invalid_input: "输入参数无效: {Reason}"
+error_password_required: "密码是必填项"
+error_username_required: "用户名是必填项"
+error_length_min: "{Field}长度至少需要 {Min} 个字符"
+error_length_max: "{Field}长度不能超过 {Max} 个字符"
+error_validation_failed: "数据验证失败"
+
+# User specific messages
+user_created_successfully: "用户创建成功"
+user_updated_successfully: "用户信息更新成功"
+user_deleted_successfully: "用户删除成功"
+
+# Department specific messages
+department_not_found: "部门未找到"
+error_db_create_department: "创建部门失败"
+error_db_update_department: "更新部门失败"
+error_db_delete_department: "删除部门失败"
+
+# Post specific messages
+post_not_found: "岗位未找到"
+post_code_exists: "岗位编码 '{Code}' 已存在"
+error_db_create_post: "创建岗位失败"
+error_db_update_post: "更新岗位失败" # Added
+error_db_delete_post: "删除岗位失败" # Added
+error_db_check_post_code: "检查岗位编码失败" # Added
+
+# User specific messages
+user_created_successfully: "用户创建成功"
+user_updated_successfully: "用户信息更新成功"
+user_deleted_successfully: "用户删除成功"
